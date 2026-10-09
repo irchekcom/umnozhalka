@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Таблица умножения: Кот-эксперт</title>
+    <style>
+        /* Сброс для Tilda */
+        * {
+            box-sizing: border-box;
+        }
+        
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f8ff;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .wrapper {
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        #question {
+            font-size: 3em;
+            font-weight: bold;
+            margin-bottom: 30px;
+            color: #2c3e50;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        #answer-input {
+            width: 100px;
+            padding: 15px;
+            font-size: 1.5em;
+            border: 3px solid #dcdcdc;
+            border-radius: 12px;
+            text-align: center;
+            margin: 0 10px;
+            transition: border-color 0.3s;
+        }
+
+        #answer-input:focus {
+            outline: none;
+            border-color: #6e8efb;
+        }
+
+        #submit-btn, #start-btn, #next-btn {
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(110, 142, 251, 0.4);
+        }
+
+        #submit-btn:hover, #start-btn:hover, #next-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(110, 142, 251, 0.5);
+        }
+
+        #submit-btn:active, #start-btn:active, #next-btn:active {
+            transform: translateY(0);
+        }
+
+        #next-btn {
+            background: linear-gradient(135deg, #fbb13c, #f1592a);
+            box-shadow: 0 4px 15px rgba(251, 177, 60, 0.4);
+        }
+
+        #next-btn:hover {
+            box-shadow: 0 6px 20px rgba(251, 177, 60, 0.5);
+        }
+
+        #result-container {
+            margin-top: 20px;
+            min-height: 120px;
+            position: relative;
+        }
+
+        #result-text {
+            font-size: 1.3em;
+            font-weight: bold;
+            min-height: 30px;
+        }
+
+        #cat-image {
+            width: 200px;
+            height: 200px;
+            margin: 20px auto;
+            display: none;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 8px solid #ffd700;
+        }
+
+        /* Адаптив */
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 2em;
+            }
+            .subtitle {
+                font-size: 1em;
+            }
+            #question {
+                font-size: 2.2em;
+                gap: 10px;
+            }
+            #answer-input {
+                width: 80px;
+                font-size: 1.2em;
+            }
+            #cat-image {
+                width: 150px;
+                height: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="wrapper">
+    <h1>🧮 Таблица умножения</h1>
+    <p class="subtitle">Спроси кота, он в этом деле эксперт. Но сначала нажми «Старт»!</p>
+    
+    <button id="start-btn">Старт</button>
+    
+    <div id="game-area" style="display: none;">
+        <div id="question">
+            <span id="num-a"></span>
+            <span id="operator"></span>
+            <span id="num-b"></span>
+            <span>=</span>
+            <input type="number" id="answer-input" placeholder="?" autocomplete="off">
+        </div>
+        <button id="submit-btn">Проверить</button>
+    </div>
+
+    <div id="result-container">
+        <div id="result-text"></div>
+        <img id="cat-image" src="" alt="Кот">
+    </div>
+    
+    <button id="next-btn" style="display: none;">Еще</button>
+</div>
+
+<script>
+    // Генератор случайных чисел
+    function getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    // Переменные состояния
+    let a, b, operator, correctAnswer;
+    const operators = ['*', ':'];
+
+    // Элементы DOM
+    const startBtn = document.getElementById('start-btn');
+    const gameArea = document.getElementById('game-area');
+    const numA = document.getElementById('num-a');
+    const numB = document.getElementById('num-b');
+    const operatorEl = document.getElementById('operator');
+    const answerInput = document.getElementById('answer-input');
+    const submitBtn = document.getElementById('submit-btn');
+    const resultText = document.getElementById('result-text');
+    const catImage = document.getElementById('cat-image');
+    const nextBtn = document.getElementById('next-btn');
+
+    // Внешние ссылки на картинки
+    const happyCat = 'https://i.imgur.com/8u2nR5g.png'; // Веселый кот
+    const sadCat = 'https://i.imgur.com/6K4hP0M.png';   // Грустный кот
+
+    function generateQuestion() {
+        a = getRandomInt(1, 10);
+        b = getRandomInt(1, 10);
+        operator = operators[getRandomInt(0, 1)];
+
+        numA.textContent = a;
+        numB.textContent = b;
+        operatorEl.textContent = operator;
+
+        if (operator === '*') {
+            correctAnswer = a * b;
+        } else {
+            // Деление с двоеточием, результат всегда целый
+            correctAnswer = getRandomInt(1, 10);
+            a = correctAnswer * b;
+            numA.textContent = a;
+        }
+        answerInput.value = '';
+        answerInput.focus();
+    }
+
+    function showResult(isCorrect) {
+        submitBtn.disabled = true;
+        answerInput.disabled = true;
+        nextBtn.style.display = 'block';
+
+        if (isCorrect) {
+            const jokes = [
+                'Мур-р-р! Ты гений!',
+                'Кот аплодирует стоя!',
+                'Мои усы дрожат от восторга!',
+                'Это 10 из 10, вот это я понимаю!',
+                'Прямо как в учебнике, только веселее!',
+                'Кот выписывает тебе диплом с отличием!',
+                'Математика покорена!',
+                'Даже я, кот, так быстро не считаю!',
+                'Мыши в подвале в шоке от твоих знаний!',
+                'Срочно звони в книгу рекордов!'
+            ];
+            resultText.textContent = jokes[getRandomInt(0, jokes.length - 1)];
+            resultText.style.color = '#28a745';
+            catImage.src = happyCat;
+        } else {
+            const joke = [
+                'Мяу! Ошибочка. Кот недоволен, но всё равно тебя любит.',
+                'Кот говорит: "Пересчитай на лапках!"',
+                'Не расстраивайся, даже Эйнштейн путал таблицу умножения... наверное.',
+                'Кот лапой закрывает лицо. Это фиаско, братан!',
+                'Математика обиделась и ушла пить чай.',
+                'Этот пример съел неправильный бутерброд!',
+                'Кот шепчет: "Псс, правильный ответ на 2 больше" (шутка, просто попробуй еще раз).',
+                'Где-то в калькуляторе сейчас грустит один пиксель.',
+                'Ты случайно открыл таблицу деления? Мы так не договаривались!',
+                'Кот решил, что это был тест на внимательность. Ты его почти прошел.',
+                'Упс! Кот уронил учебник от удивления.',
+                'Мои усы подсказывают, что это не 7.',
+                'Кот предлагает взять подсказку "50 на 50", но он сам не знает ответа.'
+            ];
+            resultText.textContent = joke[getRandomInt(0, joke.length - 1)];
+            resultText.style.color = '#dc3545';
+            catImage.src = sadCat;
+        }
+
+        catImage.style.display = 'block';
+    }
+
+    startBtn.addEventListener('click', () => {
+        startBtn.style.display = 'none';
+        gameArea.style.display = 'block';
+        generateQuestion();
+    });
+
+    submitBtn.addEventListener('click', () => {
+        const userAnswer = parseInt(answerInput.value);
+        if (isNaN(userAnswer)) {
+            resultText.textContent = 'Введи число, а не пустоту!';
+            resultText.style.color = '#ffc107';
+            return;
+        }
+        showResult(userAnswer === correctAnswer);
+    });
+
+    // Проверка по Enter
+    answerInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            submitBtn.click();
+        }
+    });
+
+    nextBtn.addEventListener('click', () => {
+        resultText.textContent = '';
+        catImage.style.display = 'none';
+        nextBtn.style.display = 'none';
+        submitBtn.disabled = false;
+        answerInput.disabled = false;
+        generateQuestion();
+    });
+</script>
+
+</body>
+</html>
