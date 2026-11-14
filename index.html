@@ -1,306 +1,804 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Таблица умножения: Кот-эксперт</title>
-    <style>
-        /* Сброс для Tilda */
-        * {
-            box-sizing: border-box;
-        }
-        
-        body, html {
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f8ff;
-            color: #333;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>УМНОжай МОЗГ — Тренажер таблицы умножения и деления</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-sky: #78a7ff;
+      --grass-top: #5da630;
+      --grass-dark: #437d20;
+      --dirt: #866043;
+      --dirt-dark: #5e422e;
+      --panel-bg: #c6c6c6;
+      --panel-light: #ffffff;
+      --panel-shadow: #555555;
+      --btn-green: #52a535;
+      --btn-green-hover: #63c142;
+      --btn-green-shadow: #2d5e1c;
+      --btn-blue: #3c85c6;
+      --btn-blue-hover: #4ea0e8;
+      --btn-blue-shadow: #204b73;
+      --btn-gold: #e6a817;
+      --btn-gold-shadow: #8c6207;
+      --red-mc: #d93838;
+      --green-mc: #46b839;
+      --text-dark: #1e1e1e;
+    }
 
-        .wrapper {
-            width: 100%;
-            max-width: 600px;
-            padding: 20px;
-            background: #ffffff;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            text-align: center;
-        }
+    * {
+      box-sizing: border-box;
+      user-select: none;
+    }
 
-        h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            background: linear-gradient(135deg, #6e8efb, #a777e3);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: 'Press Start 2P', monospace;
+      color: var(--text-dark);
+      background:
+        linear-gradient(180deg,
+          #78a7ff 0%,
+          #a8c8ff 68%,
+          var(--grass-top) 68%,
+          var(--grass-top) 73%,
+          var(--grass-dark) 73%,
+          var(--grass-dark) 75%,
+          var(--dirt) 75%,
+          var(--dirt) 100%
+        );
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
 
-        .subtitle {
-            font-size: 1.2em;
-            color: #666;
-            margin-bottom: 30px;
-        }
+    body::before {
+      content: "";
+      position: fixed;
+      top: 8%;
+      left: 10%;
+      width: 140px;
+      height: 36px;
+      background: rgba(255, 255, 255, 0.85);
+      box-shadow:
+        24px -18px 0 0 rgba(255, 255, 255, 0.85),
+        60vw 12px 0 10px rgba(255, 255, 255, 0.75),
+        45vw 70px 0 -4px rgba(255, 255, 255, 0.65);
+      z-index: 0;
+      pointer-events: none;
+    }
 
-        #question {
-            font-size: 3em;
-            font-weight: bold;
-            margin-bottom: 30px;
-            color: #2c3e50;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
+    .game-window {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 820px;
+      min-height: 540px;
+      background-color: var(--panel-bg);
+      border: 4px solid #1a1a1a;
+      box-shadow:
+        inset 6px 6px 0px var(--panel-light),
+        inset -6px -6px 0px var(--panel-shadow),
+        0 14px 0 rgba(0, 0, 0, 0.35);
+      padding: 28px 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
 
-        #answer-input {
-            width: 100px;
-            padding: 15px;
-            font-size: 1.5em;
-            border: 3px solid #dcdcdc;
-            border-radius: 12px;
-            text-align: center;
-            margin: 0 10px;
-            transition: border-color 0.3s;
-        }
+    .screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      text-align: center;
+      width: 100%;
+    }
 
-        #answer-input:focus {
-            outline: none;
-            border-color: #6e8efb;
-        }
+    .screen.active {
+      display: flex;
+    }
 
-        #submit-btn, #start-btn, #next-btn {
-            background: linear-gradient(135deg, #6e8efb, #a777e3);
-            color: white;
-            border: none;
-            padding: 15px 40px;
-            font-size: 1.2em;
-            font-weight: bold;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 4px 15px rgba(110, 142, 251, 0.4);
-        }
+    .logo-badge {
+      background: #3b3b3b;
+      color: #ffd83d;
+      padding: 8px 14px;
+      font-size: 11px;
+      border: 3px solid #1a1a1a;
+      margin-bottom: 22px;
+      text-shadow: 2px 2px 0 #000;
+    }
 
-        #submit-btn:hover, #start-btn:hover, #next-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(110, 142, 251, 0.5);
-        }
+    .main-title {
+      font-size: clamp(24px, 5vw, 44px);
+      line-height: 1.35;
+      color: #ffffff;
+      text-shadow:
+        4px 4px 0px #2b2b2b,
+        -2px -2px 0px #2b2b2b,
+        2px -2px 0px #2b2b2b,
+        -2px 2px 0px #2b2b2b;
+      margin: 0 0 18px 0;
+    }
 
-        #submit-btn:active, #start-btn:active, #next-btn:active {
-            transform: translateY(0);
-        }
+    .main-title span {
+      color: #6ee846;
+    }
 
-        #next-btn {
-            background: linear-gradient(135deg, #fbb13c, #f1592a);
-            box-shadow: 0 4px 15px rgba(251, 177, 60, 0.4);
-        }
+    .subtitle {
+      font-size: clamp(11px, 2vw, 14px);
+      line-height: 1.6;
+      color: #2f2f2f;
+      max-width: 520px;
+      margin-bottom: 42px;
+    }
 
-        #next-btn:hover {
-            box-shadow: 0 6px 20px rgba(251, 177, 60, 0.5);
-        }
+    .mc-btn {
+      font-family: 'Press Start 2P', monospace;
+      font-size: clamp(14px, 2.5vw, 18px);
+      padding: 18px 34px;
+      border: 4px solid #1a1a1a;
+      cursor: pointer;
+      color: #ffffff;
+      text-shadow: 2px 2px 0 #1a1a1a;
+      transition: transform 0.06s;
+      position: relative;
+    }
 
-        #result-container {
-            margin-top: 20px;
-            min-height: 120px;
-            position: relative;
-        }
+    .mc-btn:active {
+      transform: translateY(4px);
+    }
 
-        #result-text {
-            font-size: 1.3em;
-            font-weight: bold;
-            min-height: 30px;
-        }
+    .mc-btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+    }
 
-        #cat-image {
-            width: 200px;
-            height: 200px;
-            margin: 20px auto;
-            display: none;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 8px solid #ffd700;
-        }
+    .btn-start, .btn-yes {
+      background-color: var(--btn-green);
+      box-shadow:
+        inset 4px 4px 0px #8ce06c,
+        inset -4px -4px 0px var(--btn-green-shadow),
+        0 5px 0 #1a1a1a;
+    }
 
-        /* Адаптив */
-        @media (max-width: 480px) {
-            h1 {
-                font-size: 2em;
-            }
-            .subtitle {
-                font-size: 1em;
-            }
-            #question {
-                font-size: 2.2em;
-                gap: 10px;
-            }
-            #answer-input {
-                width: 80px;
-                font-size: 1.2em;
-            }
-            #cat-image {
-                width: 150px;
-                height: 150px;
-            }
-        }
-    </style>
+    .btn-start:hover:not(:disabled), .btn-yes:hover:not(:disabled) {
+      background-color: var(--btn-green-hover);
+    }
+
+    .btn-next {
+      background-color: var(--btn-blue);
+      box-shadow:
+        inset 4px 4px 0px #7ec0fa,
+        inset -4px -4px 0px var(--btn-blue-shadow),
+        0 5px 0 #1a1a1a;
+    }
+
+    .btn-next:hover:not(:disabled) {
+      background-color: var(--btn-blue-hover);
+    }
+
+    .btn-retry {
+      background-color: var(--btn-gold);
+      box-shadow:
+        inset 4px 4px 0px #ffe07d,
+        inset -4px -4px 0px var(--btn-gold-shadow),
+        0 5px 0 #1a1a1a;
+      margin-top: 24px;
+    }
+
+    .top-bar {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .progress-track {
+      flex: 1;
+      height: 28px;
+      background: #3a3a3a;
+      border: 4px solid #1a1a1a;
+      box-shadow: inset 3px 3px 0 #222;
+      display: grid;
+      grid-template-columns: repeat(20, 1fr);
+      gap: 2px;
+      padding: 3px;
+    }
+
+    .progress-segment {
+      background: #5c5c5c;
+      height: 100%;
+      transition: background-color 0.2s;
+    }
+
+    .progress-segment.correct {
+      background: var(--green-mc);
+      box-shadow: inset 1px 1px 0 #8ef283;
+    }
+
+    .progress-segment.wrong {
+      background: var(--red-mc);
+      box-shadow: inset 1px 1px 0 #ff7b7b;
+    }
+
+    .score-counter {
+      font-size: clamp(14px, 2.5vw, 18px);
+      color: #266b1e;
+      background: #e6e6e6;
+      padding: 8px 12px;
+      border: 3px solid #1a1a1a;
+      white-space: nowrap;
+    }
+
+    .equation-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin: 10px 0 18px 0;
+      flex-wrap: wrap;
+    }
+
+    .equation-text {
+      font-size: clamp(24px, 5vw, 40px);
+      color: #1a1a1a;
+      letter-spacing: 1px;
+    }
+
+    .answer-input {
+      font-family: 'Press Start 2P', monospace;
+      font-size: clamp(22px, 4.5vw, 36px);
+      width: 135px;
+      height: 68px;
+      text-align: center;
+      background: #ffffff;
+      border: 4px solid #1a1a1a;
+      box-shadow: inset 4px 4px 0 #b8b8b8;
+      color: #1a1a1a;
+      outline: none;
+    }
+
+    .answer-input:focus {
+      background: #ffffd6;
+    }
+
+    .answer-input::-webkit-outer-spin-button,
+    .answer-input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .status-circle {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 4px solid #1a1a1a;
+      background-color: #9e9e9e;
+      box-shadow: inset -4px -4px 0 rgba(0,0,0,0.25);
+      flex-shrink: 0;
+      transition: background-color 0.2s, transform 0.2s;
+    }
+
+    .status-circle.correct {
+      background-color: var(--green-mc);
+      transform: scale(1.08);
+    }
+
+    .status-circle.wrong {
+      background-color: var(--red-mc);
+      transform: scale(1.08);
+    }
+
+    .feedback-phrase {
+      min-height: 44px;
+      font-size: clamp(12px, 2.1vw, 15px);
+      line-height: 1.55;
+      margin: 4px 0 14px 0;
+      max-width: 640px;
+      color: #2b2b2b;
+    }
+
+    .feedback-phrase.success {
+      color: #1c6b14;
+    }
+
+    .feedback-phrase.error {
+      color: #a81c1c;
+    }
+
+    .meme-box {
+      width: 100%;
+      max-width: 340px;
+      height: 200px;
+      background: #2b2b2b;
+      border: 4px solid #1a1a1a;
+      box-shadow: inset 4px 4px 0 #161616;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      margin-bottom: 22px;
+      position: relative;
+    }
+
+    .meme-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: #1e1e1e;
+    }
+
+    .meme-placeholder {
+      color: #a0a0a0;
+      font-size: 11px;
+      line-height: 1.6;
+      padding: 16px;
+    }
+
+    .actions-row {
+      display: flex;
+      gap: 20px;
+      width: 100%;
+      max-width: 480px;
+      justify-content: center;
+    }
+
+    .actions-row .mc-btn {
+      flex: 1;
+      padding: 16px 12px;
+    }
+
+    .result-header {
+      font-size: clamp(18px, 3.5vw, 26px);
+      margin-bottom: 16px;
+      color: #1a1a1a;
+    }
+
+    .result-score-pill {
+      background: #2b2b2b;
+      color: #6ee846;
+      padding: 10px 18px;
+      border: 3px solid #1a1a1a;
+      font-size: 14px;
+      margin-bottom: 22px;
+    }
+
+    .level-title {
+      font-size: clamp(16px, 3vw, 22px);
+      line-height: 1.5;
+      color: #1e579c;
+      margin-bottom: 16px;
+      max-width: 620px;
+    }
+
+    .level-desc {
+      font-size: clamp(12px, 2vw, 15px);
+      line-height: 1.7;
+      max-width: 600px;
+      color: #242424;
+      background: #dcdcdc;
+      padding: 18px;
+      border: 3px solid #1a1a1a;
+    }
+
+    .trophy-icon {
+      font-size: 48px;
+      margin: 14px 0 4px 0;
+    }
+
+    .diploma-card {
+      background: #fff8dc;
+      border: 6px solid #c98a16;
+      box-shadow:
+        inset 0 0 0 4px #1a1a1a,
+        0 8px 0 #1a1a1a;
+      padding: 28px 22px;
+      max-width: 660px;
+      width: 100%;
+    }
+
+    .diploma-title {
+      font-size: clamp(24px, 4.5vw, 36px);
+      color: #b86e00;
+      text-shadow: 2px 2px 0 #1a1a1a;
+      margin: 0 0 20px 0;
+    }
+
+    .diploma-text {
+      font-size: clamp(12px, 2.1vw, 15px);
+      line-height: 1.8;
+      color: #1e1e1e;
+      margin: 0;
+    }
+
+    .diploma-stamp {
+      display: inline-block;
+      margin-top: 18px;
+      padding: 8px 14px;
+      border: 3px dashed #2e8b22;
+      color: #2e8b22;
+      font-size: 11px;
+      transform: rotate(-2deg);
+    }
+
+    @media (max-width: 560px) {
+      .game-window {
+        padding: 20px 14px;
+        min-height: 88vh;
+      }
+
+      .top-bar {
+        gap: 8px;
+      }
+
+      .progress-track {
+        height: 22px;
+        gap: 1px;
+      }
+
+      .score-counter {
+        font-size: 12px;
+        padding: 6px 8px;
+      }
+
+      .answer-input {
+        width: 105px;
+        height: 56px;
+      }
+
+      .status-circle {
+        width: 38px;
+        height: 38px;
+      }
+
+      .meme-box {
+        height: 180px;
+      }
+
+      .actions-row {
+        gap: 12px;
+      }
+    }
+  </style>
 </head>
 <body>
+  <main class="game-window">
+    <section id="screen-start" class="screen active">
+      <div class="logo-badge">★ MINECRAFT EDITION ★</div>
+      <h1 class="main-title"><span>УМНО</span>жай МОЗГ</h1>
+      <p class="subtitle">Реши 20 примеров на умножение и деление (от 2 до 9), собери все зеленые блоки и забери свой диплом!</p>
+      <button id="btn-start" class="mc-btn btn-start">СТАРТ</button>
+    </section>
 
-<div class="wrapper">
-    <h1>🧮 Таблица умножения</h1>
-    <p class="subtitle">Спроси кота, он в этом деле эксперт. Но сначала нажми «Старт»!</p>
-    
-    <button id="start-btn">Старт</button>
-    
-    <div id="game-area" style="display: none;">
-        <div id="question">
-            <span id="num-a"></span>
-            <span id="operator"></span>
-            <span id="num-b"></span>
-            <span>=</span>
-            <input type="number" id="answer-input" placeholder="?" autocomplete="off">
-        </div>
-        <button id="submit-btn">Проверить</button>
-    </div>
+    <section id="screen-game" class="screen">
+      <div class="top-bar">
+        <div id="progress-track" class="progress-track" aria-label="Прогресс"></div>
+        <div id="score-counter" class="score-counter">0/20</div>
+      </div>
 
-    <div id="result-container">
-        <div id="result-text"></div>
-        <img id="cat-image" src="" alt="Кот">
-    </div>
-    
-    <button id="next-btn" style="display: none;">Еще</button>
-</div>
+      <div class="equation-row">
+        <div id="equation-text" class="equation-text">5 × 8 =</div>
+        <input
+          id="answer-input"
+          class="answer-input"
+          type="number"
+          inputmode="numeric"
+          placeholder="?"
+          autocomplete="off"
+        />
+        <div id="status-circle" class="status-circle" title="Статус ответа"></div>
+      </div>
 
-<script>
-    // Генератор случайных чисел
-    function getRandomInt(min, max) {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
+      <div id="feedback-phrase" class="feedback-phrase">
+        Введи ответ и нажми YES!
+      </div>
 
-    // Переменные состояния
-    let a, b, operator, correctAnswer;
-    const operators = ['*', ':'];
+      <div id="meme-box" class="meme-box">
+        <div class="meme-placeholder">[ ? ]<br>Здесь появится мем после ответа</div>
+      </div>
 
-    // Элементы DOM
-    const startBtn = document.getElementById('start-btn');
-    const gameArea = document.getElementById('game-area');
-    const numA = document.getElementById('num-a');
-    const numB = document.getElementById('num-b');
-    const operatorEl = document.getElementById('operator');
+      <div class="actions-row">
+        <button id="btn-yes" class="mc-btn btn-yes">YES</button>
+        <button id="btn-next" class="mc-btn btn-next" disabled>ЕЩЕ</button>
+      </div>
+    </section>
+
+    <section id="screen-result" class="screen">
+      <div class="result-header">Твой результат</div>
+      <div id="result-score-pill" class="result-score-pill">Правильно: 0 из 20</div>
+      <div id="level-title" class="level-title">Уровень 1 — Космический Кадет</div>
+      <div id="level-desc" class="level-desc">
+        Поехали! Двигатели прогреты, первые 5 примеров успешно решены.
+      </div>
+      <div class="trophy-icon">🏆 ⭐ 🏆</div>
+      <button id="btn-retry-level" class="mc-btn btn-retry">Пробовать снова</button>
+    </section>
+
+    <section id="screen-diploma" class="screen">
+      <div class="diploma-card">
+        <h2 class="diploma-title">ДИПЛОМ</h2>
+        <p id="diploma-text" class="diploma-text"></p>
+        <div class="diploma-stamp">✔ ЗАВЕРЕНО КОТОМ: 20 / 20</div>
+      </div>
+      <button id="btn-retry-diploma" class="mc-btn btn-retry">Пробовать снова</button>
+    </section>
+  </main>
+
+  <script>
+    const IMAGE_FOLDER = 'images/';
+
+    const SUCCESS_ITEMS = [
+      { text: 'Мур-р-р! Ты гений!', img: 'kot2.jpg' },
+      { text: 'Это 10 из 10, вот это я понимаю!', img: 'yes.jpg' },
+      { text: 'Математика покорена!', img: 'vau.jpg' },
+      { text: 'Даже я, так быстро не считаю!', img: 'birdish.jpg' },
+      { text: 'Мыши в подвале в шоке от твоих знаний!', img: 'kotmish.jpg' },
+      { text: 'Срочно звони в книгу рекордов!', img: 'zvonok.jpg' },
+      { text: 'Ты гений! Сразу в 6 класс!', img: 'jim.jpg' },
+      { text: 'Кот снимает перед тобой свою невидимую шляпу!', img: 'kot_ulibaka.jpg' },
+      { text: 'Твой мозг работает быстрее, чем я бегу к миске!', img: 'cheremsha.jpg' },
+      { text: 'Эйнштейн бы точно попросил у тебя списать!', img: 'enshtein.jpg' },
+      { text: 'Калькулятор нервно курит в сторонке!', img: 'kruto.jpg' },
+      { text: 'Выдайте этому ученику двойную порцию вкусняшек!', img: 'pizza.jpg' },
+      { text: 'Батарейки в калькуляторе сели от зависти!', img: 'bin.jpg' },
+      { text: 'Космическая скорость счета! Поехали дальше!', img: 'spanchraketa.jpg' },
+      { text: 'Твой мозг сегодня разогнался на полную мощность!', img: 'spanch.jpg' },
+      { text: 'Огонь! Таблица умножения сдается без боя!', img: 'sobaka.jpg' }
+    ];
+
+    const ERROR_ITEMS = [
+      { text: 'Мяу! Ошибочка. Кот недоволен, но всё равно тебя любит.', img: 'kot4.jpg' },
+      { text: 'Кот говорит: "Пересчитай на лапках!"', img: 'kot.jpg' },
+      { text: 'Не расстраивайся, даже Эйнштейн путал таблицу умножения... наверное.', img: 'enshtein2.jpg' },
+      { text: 'Это фиаско, братан!', img: 'sobaka2.jpg' },
+      { text: 'Математика обиделась и ушла пить чай.', img: 'no.jpg' },
+      { text: 'Этот пример съел неправильный бутерброд!', img: 'loshad.jpg' },
+      { text: 'Где-то в калькуляторе сейчас грустит один пиксель.', img: 'grust.jpg' },
+      { text: 'Ты случайно открыл таблицу деления? Мы так не договаривались!', img: 'sobaka2.jpg' },
+      { text: 'Мои усы подсказывают, что это не 7.', img: 'sobaka3.jpg' },
+      { text: 'Ничего страшного! Я тоже иногда промахиваюсь мимо дивана.', img: 'monaliza.jpg' },
+      { text: 'Кажется, кто-то отвлекся на пробегающую мышку. Соберись, у тебя получится!', img: 'shrek.jpg' },
+      { text: 'Кажется, цифры решили пошутить. Покажи им, кто здесь главный!', img: 'sobaka3.jpg' },
+      { text: 'Не сдавайся! Секрет этого примера вот-вот раскроется.', img: 'nooo.jpg' },
+      { text: 'Упс, мимо! Перезагружаем мозг и пробуем снова.', img: 'perezagruzka.jpg' },
+      { text: 'Хорошая попытка, но таблица умножения пока не сдается!', img: 'sobaka5.jpg' },
+      { text: 'Не беда! Зато теперь ты точно знаешь, какой ответ не подходит.', img: 'volk.jpg' }
+    ];
+
+    const DIPLOMA_TEXTS = [
+      'Настоящий диплом подтверждает, что ТЫ официально признан Повелителем Таблицы Умножения! Все 20 примеров решены без единой ошибки. Кот ставит свою мокрую печать и выписывает премию в виде двойной порции вкусняшек!',
+      'Грамота Великого Магистра Цифр! Награждаешься за то, что смело сразился с двадцатью коварными примерами и победил их со счетом 20:0! Официально присваивается звание Грозы Таблицы Умножения!',
+      'Этим дипломом награждаешься за блестящую победу над 20 примерами подряд! Ни одна цифра не смогла тебя запутать, а калькулятор официально ушел в отпуск. Так держать, чемпион математики!'
+    ];
+
+    const TOTAL_QUESTIONS = 20;
+
+    let questions = [];
+    let currentIndex = 0;
+    let correctCount = 0;
+    let isAnswered = false;
+    let successDeck = [];
+    let errorDeck = [];
+
+    const screens = {
+      start: document.getElementById('screen-start'),
+      game: document.getElementById('screen-game'),
+      result: document.getElementById('screen-result'),
+      diploma: document.getElementById('screen-diploma')
+    };
+
+    const progressTrack = document.getElementById('progress-track');
+    const scoreCounter = document.getElementById('score-counter');
+    const equationText = document.getElementById('equation-text');
     const answerInput = document.getElementById('answer-input');
-    const submitBtn = document.getElementById('submit-btn');
-    const resultText = document.getElementById('result-text');
-    const catImage = document.getElementById('cat-image');
-    const nextBtn = document.getElementById('next-btn');
+    const statusCircle = document.getElementById('status-circle');
+    const feedbackPhrase = document.getElementById('feedback-phrase');
+    const memeBox = document.getElementById('meme-box');
+    const btnYes = document.getElementById('btn-yes');
+    const btnNext = document.getElementById('btn-next');
 
-    // Внешние ссылки на картинки
-    const happyCat = 'https://i.imgur.com/8u2nR5g.png'; // Веселый кот
-    const sadCat = 'https://i.imgur.com/6K4hP0M.png';   // Грустный кот
+    function shuffle(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
 
-    function generateQuestion() {
-        a = getRandomInt(1, 10);
-        b = getRandomInt(1, 10);
-        operator = operators[getRandomInt(0, 1)];
+    function getNextPhrase(isSuccess) {
+      if (isSuccess) {
+        if (successDeck.length === 0) successDeck = shuffle(SUCCESS_ITEMS);
+        return successDeck.pop();
+      } else {
+        if (errorDeck.length === 0) errorDeck = shuffle(ERROR_ITEMS);
+        return errorDeck.pop();
+      }
+    }
 
-        numA.textContent = a;
-        numB.textContent = b;
-        operatorEl.textContent = operator;
+    // Генерация 20 примеров: 10 на умножение и 10 на деление (числа от 2 до 9, без 1 и 10)
+    function generateQuestions() {
+      const multPairs = [];
+      const divPairs = [];
 
-        if (operator === '*') {
-            correctAnswer = a * b;
-        } else {
-            // Деление с двоеточием, результат всегда целый
-            correctAnswer = getRandomInt(1, 10);
-            a = correctAnswer * b;
-            numA.textContent = a;
+      for (let a = 2; a <= 9; a++) {
+        for (let b = 2; b <= 9; b++) {
+          const product = a * b;
+          multPairs.push({ text: `${a} × ${b} =`, answer: product });
+          divPairs.push({ text: `${product} : ${a} =`, answer: b });
         }
-        answerInput.value = '';
+      }
+
+      const half = TOTAL_QUESTIONS / 2;
+      const selectedMult = shuffle(multPairs).slice(0, half);
+      const selectedDiv = shuffle(divPairs).slice(0, half);
+
+      return shuffle([...selectedMult, ...selectedDiv]);
+    }
+
+    function showScreen(name) {
+      Object.values(screens).forEach(s => s.classList.remove('active'));
+      screens[name].classList.add('active');
+    }
+
+    function buildProgressBar() {
+      progressTrack.innerHTML = '';
+      for (let i = 0; i < TOTAL_QUESTIONS; i++) {
+        const seg = document.createElement('div');
+        seg.className = 'progress-segment';
+        seg.id = `seg-${i}`;
+        progressTrack.appendChild(seg);
+      }
+    }
+
+    function startGame() {
+      questions = generateQuestions();
+      currentIndex = 0;
+      correctCount = 0;
+      successDeck = shuffle(SUCCESS_ITEMS);
+      errorDeck = shuffle(ERROR_ITEMS);
+
+      buildProgressBar();
+      scoreCounter.textContent = `0/${TOTAL_QUESTIONS}`;
+      showScreen('game');
+      loadQuestion();
+    }
+
+    function loadQuestion() {
+      isAnswered = false;
+      const q = questions[currentIndex];
+
+      equationText.textContent = q.text;
+      answerInput.value = '';
+      answerInput.disabled = false;
+      answerInput.focus();
+
+      statusCircle.className = 'status-circle';
+      feedbackPhrase.className = 'feedback-phrase';
+      feedbackPhrase.textContent = `Пример ${currentIndex + 1} из ${TOTAL_QUESTIONS}. Введи ответ и нажми YES!`;
+
+      memeBox.innerHTML = `<div class="meme-placeholder">[ ? ]<br>Реши пример, чтобы открыть мем</div>`;
+
+      btnYes.disabled = false;
+      btnNext.disabled = true;
+    }
+
+    function renderMeme(filename) {
+      const img = document.createElement('img');
+      img.src = IMAGE_FOLDER + filename;
+      img.alt = 'Мем';
+      img.onerror = () => {
+        memeBox.innerHTML = `<div class="meme-placeholder">Картинка: ${filename}<br>(положи файл в папку images/)</div>`;
+      };
+      memeBox.innerHTML = '';
+      memeBox.appendChild(img);
+    }
+
+    function checkAnswer() {
+      if (isAnswered) return;
+      const rawValue = answerInput.value.trim();
+      if (rawValue === '') {
         answerInput.focus();
+        return;
+      }
+
+      isAnswered = true;
+      answerInput.disabled = true;
+      btnYes.disabled = true;
+      btnNext.disabled = false;
+
+      const userAns = Number(rawValue);
+      const q = questions[currentIndex];
+      const isCorrect = userAns === q.answer;
+      const seg = document.getElementById(`seg-${currentIndex}`);
+
+      if (isCorrect) {
+        correctCount++;
+        seg.classList.add('correct');
+        statusCircle.classList.add('correct');
+        const item = getNextPhrase(true);
+        feedbackPhrase.className = 'feedback-phrase success';
+        feedbackPhrase.textContent = item.text;
+        renderMeme(item.img);
+      } else {
+        seg.classList.add('wrong');
+        statusCircle.classList.add('wrong');
+        const item = getNextPhrase(false);
+        feedbackPhrase.className = 'feedback-phrase error';
+        feedbackPhrase.textContent = `${item.text} (Правильно: ${q.answer})`;
+        renderMeme(item.img);
+      }
+
+      scoreCounter.textContent = `${correctCount}/${TOTAL_QUESTIONS}`;
+      btnNext.focus();
     }
 
-    function showResult(isCorrect) {
-        submitBtn.disabled = true;
-        answerInput.disabled = true;
-        nextBtn.style.display = 'block';
+    function nextStep() {
+      if (!isAnswered) return;
+      currentIndex++;
+      if (currentIndex < TOTAL_QUESTIONS) {
+        loadQuestion();
+      } else {
+        finishGame();
+      }
+    }
 
-        if (isCorrect) {
-            const jokes = [
-                'Мур-р-р! Ты гений!',
-                'Кот аплодирует стоя!',
-                'Мои усы дрожат от восторга!',
-                'Это 10 из 10, вот это я понимаю!',
-                'Прямо как в учебнике, только веселее!',
-                'Кот выписывает тебе диплом с отличием!',
-                'Математика покорена!',
-                'Даже я, кот, так быстро не считаю!',
-                'Мыши в подвале в шоке от твоих знаний!',
-                'Срочно звони в книгу рекордов!'
-            ];
-            resultText.textContent = jokes[getRandomInt(0, jokes.length - 1)];
-            resultText.style.color = '#28a745';
-            catImage.src = happyCat;
+    function finishGame() {
+      if (correctCount === TOTAL_QUESTIONS) {
+        const randomDiploma = DIPLOMA_TEXTS[Math.floor(Math.random() * DIPLOMA_TEXTS.length)];
+        document.getElementById('diploma-text').textContent = randomDiploma;
+        showScreen('diploma');
+        return;
+      }
+
+      let title = '';
+      let desc = '';
+
+      if (correctCount < 5) {
+        title = 'Уровень 0 — Новичок';
+        desc = 'Отличная разминка! Ты уже сделал первые шаги в мире умножения. Попробуй еще раз, чтобы добраться до Уровня 1!';
+      } else if (correctCount < 10) {
+        title = 'Уровень 1 — Космический Кадет';
+        desc = 'Поехали! Двигатели прогреты, первые 5 примеров успешно решены.';
+      } else if (correctCount < 15) {
+        title = 'Уровень 2 — Звездный Штурман';
+        desc = 'Половина галактики пройдена! Ты отлично держишь курс на пятерку.';
+      } else {
+        title = 'Уровень 3 — Капитан Галактики';
+        desc = 'Выход на финишную прямую! До заветного диплома осталось совсем немного.';
+      }
+
+      document.getElementById('result-score-pill').textContent = `Правильно: ${correctCount} из ${TOTAL_QUESTIONS}`;
+      document.getElementById('level-title').textContent = title;
+      document.getElementById('level-desc').textContent = desc;
+      showScreen('result');
+    }
+
+    document.getElementById('btn-start').addEventListener('click', startGame);
+    btnYes.addEventListener('click', checkAnswer);
+    btnNext.addEventListener('click', nextStep);
+    document.getElementById('btn-retry-level').addEventListener('click', startGame);
+    document.getElementById('btn-retry-diploma').addEventListener('click', startGame);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && screens.game.classList.contains('active')) {
+        e.preventDefault();
+        if (!isAnswered) {
+          checkAnswer();
         } else {
-            const joke = [
-                'Мяу! Ошибочка. Кот недоволен, но всё равно тебя любит.',
-                'Кот говорит: "Пересчитай на лапках!"',
-                'Не расстраивайся, даже Эйнштейн путал таблицу умножения... наверное.',
-                'Кот лапой закрывает лицо. Это фиаско, братан!',
-                'Математика обиделась и ушла пить чай.',
-                'Этот пример съел неправильный бутерброд!',
-                'Кот шепчет: "Псс, правильный ответ на 2 больше" (шутка, просто попробуй еще раз).',
-                'Где-то в калькуляторе сейчас грустит один пиксель.',
-                'Ты случайно открыл таблицу деления? Мы так не договаривались!',
-                'Кот решил, что это был тест на внимательность. Ты его почти прошел.',
-                'Упс! Кот уронил учебник от удивления.',
-                'Мои усы подсказывают, что это не 7.',
-                'Кот предлагает взять подсказку "50 на 50", но он сам не знает ответа.'
-            ];
-            resultText.textContent = joke[getRandomInt(0, joke.length - 1)];
-            resultText.style.color = '#dc3545';
-            catImage.src = sadCat;
+          nextStep();
         }
-
-        catImage.style.display = 'block';
-    }
-
-    startBtn.addEventListener('click', () => {
-        startBtn.style.display = 'none';
-        gameArea.style.display = 'block';
-        generateQuestion();
+      }
     });
-
-    submitBtn.addEventListener('click', () => {
-        const userAnswer = parseInt(answerInput.value);
-        if (isNaN(userAnswer)) {
-            resultText.textContent = 'Введи число, а не пустоту!';
-            resultText.style.color = '#ffc107';
-            return;
-        }
-        showResult(userAnswer === correctAnswer);
-    });
-
-    // Проверка по Enter
-    answerInput.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-            submitBtn.click();
-        }
-    });
-
-    nextBtn.addEventListener('click', () => {
-        resultText.textContent = '';
-        catImage.style.display = 'none';
-        nextBtn.style.display = 'none';
-        submitBtn.disabled = false;
-        answerInput.disabled = false;
-        generateQuestion();
-    });
-</script>
-
+  </script>
 </body>
 </html>
